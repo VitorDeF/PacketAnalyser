@@ -1,7 +1,5 @@
 package org.example;
 
-import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import org.pcap4j.core.*;
 import org.pcap4j.packet.IpV4Packet;
 import org.pcap4j.packet.Packet;
@@ -71,7 +69,7 @@ public class NetMapper {
                     IpV4Packet ipV4Packet = packet.get(IpV4Packet.class);
                     IpV4Packet.IpV4Header srcAddrHeader = ipV4Packet.getHeader();
                     Packet payload = ipV4Packet.getPayload();
-                    Integer length = ipV4Packet.length();
+                    int length = ipV4Packet.length();
 
                     String source = getHostNameByCache(srcAddrHeader.getDstAddr());
                     String destination = getHostNameByCache(srcAddrHeader.getSrcAddr());
