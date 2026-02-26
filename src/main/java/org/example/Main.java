@@ -6,12 +6,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import jdk.swing.interop.SwingInterOpUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +41,15 @@ public class Main extends Application{
     public void start(Stage primaryStage) {
         BorderPane root = new BorderPane();
         Button btn = new Button();
+        ToggleButton scrollButton = new ToggleButton();
+        HBox topPanel = new HBox(10, btn, scrollButton);
+
+        topPanel.setAlignment(Pos.CENTER);
+        root.setTop(topPanel);
+        scrollButton.setSelected(true);
 
         btn.setText("Initialize Capture");
-        root.setTop(btn);
+        scrollButton.setText("AutoScroll On");
 
         TableView<PacketInfo> table = createPacketTable();
         table.setItems(packetList);
@@ -90,9 +100,36 @@ public class Main extends Application{
             }
         });
 
+
+        table.skinProperty().addListener((obs, oldSkin, newSkin) -> {
+            ScrollBar vBar = (ScrollBar) table.lookup(".scroll-bar:vertical");
+
+            vBar.valueProperty().addListener((vObs, oldVal, newVal) -> {
+                if (newVal.doubleValue() == 1.0) {
+                    scrollButton.setSelected(true);
+                    scrollButton.setText("AutoScroll On");
+                }
+            });
+        });
+
+        table.addEventFilter(ScrollEvent.SCROLL, event -> {
+            if(event.getDeltaY()>=0) {
+                scrollButton.setSelected(false);
+                scrollButton.setText("AutoScroll Off");
+            }
+        });
+
+        scrollButton.setOnMouseClicked(event -> {
+            if(scrollButton.isSelected()){
+                scrollButton.setText("AutoScroll On");
+            } else {
+                scrollButton.setText("AutoScroll Off");
+            }
+        });
+
         packetList.addListener( (ListChangeListener<? super PacketInfo>) change -> {
             while(change.next()){
-                if(change.wasAdded()){
+                if(change.wasAdded() && scrollButton.isSelected()){
                     table.scrollTo(packetList.size() - 1);
                 }
             }

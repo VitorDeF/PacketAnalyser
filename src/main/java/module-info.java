@@ -3,6 +3,7 @@ module org.example {
     requires javafx.graphics;
     requires javafx.fxml;
     requires org.pcap4j.core;
+    requires jdk.unsupported.desktop;
 
     opens org.example to javafx.fxml;
     exports org.example;
